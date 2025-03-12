@@ -1,12 +1,19 @@
 import express, { Request, Response } from "express";
+import cors from "cors";
 
 const app = express();
-const PORT = 3000;
+const PORT = 4000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
+app.use(cors()); 
+app.use(express.json());
+
+
+app.post("/button-click", (req: Request, res: Response) => {
+    console.log("Button was clicked!");
+    res.json({ message: "Button press received by backend!" });
 });
 
+
 app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
