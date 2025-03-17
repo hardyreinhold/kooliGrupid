@@ -1,14 +1,14 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import { auth, db } from "../firebase";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth"
+import { auth } from "../firebase"
 
 const GoogleLogin = () => {
-  const provider = new GoogleAuthProvider();
 
   const loginWithGoogle = () => {
+
+    const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
@@ -16,9 +16,22 @@ const GoogleLogin = () => {
         const token = credential.accessToken;
         // The signed-in user info.
         const user = result.user;
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
         console.log(user)
+      
+        fetch('http://localhost:4000/googleLogin', {   // connects to backend
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ token, user })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.redirectUrl) {
+            window.location.href = data.redirectUrl; // redirects user to the dashboard of teachers if login was success
+          }
+          console.log('Backend response:', data);
+        })
       })
       .catch((error) => {
         // Handle Errors here.
@@ -29,8 +42,11 @@ const GoogleLogin = () => {
         // The AuthCredential type that was used.
         const credential = GoogleAuthProvider.credentialFromError(error);
         // ...
+        console.log(error)
       });
   };
+
+
   return (
     <div className="flex justify-center mt-4">
       <button

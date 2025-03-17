@@ -5,10 +5,11 @@ import { Card, CardBody } from "reactstrap";
 import { motion } from "framer-motion";
 
 const groups = [
-  { id: 1, name: "Group A", members: ["Alice", "Bob"] , code: "1A" },
+  { id: "ojJZq27w79EyVTcHuaeq", name: "Group A", members: ["Alice", "Bob"] , code: "1A" },
   { id: 2, name: "Group B", members: ["Charlie", "David"], code: "1B"},
   { id: 3, name: "Group C", members: ["Eve", "Frank"], code: "1C" },
 ];
+
 interface Group {
   id: number;
   name: string;
