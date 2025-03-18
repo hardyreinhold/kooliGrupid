@@ -49,10 +49,38 @@ app.post('/createGroup', async (req: Request, res: Response) => {
 
         console.log("Received groupname: ", groupName )
         console.log("Recived groupCode: ", groupCode)
+
+        await db.collection("groups").add({ 
+            name: groupName,
+            members:[],
+            code:groupCode
+        });
+
     } catch (error) {
         console.error("Error adding group data: ", error);
     }
 })
+
+app.get("/getFirestoreObject", async (req, res) => {
+    try {
+      const docRef = db.collection("groups"); // Reference to the collection
+      const docSnap = await docRef.get(); // Get all documents in the collection
+  
+      if (docSnap.empty) {
+        return res.status(404).json({ message: "No groups found" });
+      }
+  
+      // Convert each document to an object
+      const groups = docSnap.docs.map((doc) => ({
+        id: doc.id, // Firestore document ID
+        ...doc.data(), // Merge document data
+      })).sort((a: String, b: String) => a.name.localeCompare(b.name));
+  
+      res.json(groups); // Send the array of groups
+    } catch (error) {
+      res.status(500).json({ error: "Error fetching documents", details: error });
+    }
+  });
 
 
 app.listen(PORT, () => {
