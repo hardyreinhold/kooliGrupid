@@ -1,26 +1,39 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardBody } from "reactstrap";
 import { motion } from "framer-motion";
-
-const groups = [
-  { id: "ojJZq27w79EyVTcHuaeq", name: "Group A", members: ["Alice", "Bob"] , code: "1A" },
-  { id: 2, name: "Group B", members: ["Charlie", "David"], code: "1B"},
-  { id: 3, name: "Group C", members: ["Eve", "Frank"], code: "1C" },
-];
+import { data } from "framer-motion/client";
 
 interface Group {
-  id: number;
   name: string;
   members: string[];
   code: string;
 }
 
+
 export default function GroupDashboard() {
+  const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
+
+  useEffect(() => {
+    async function fetchGroups() {
+      try {
+        const res = await fetch("http://localhost:4000/getFirestoreObject");
+        const data = await res.json();
+        if (data) {
+          setGroups(Array.isArray(data) ? data : [data]); // Ensure it's an array
+        }
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+      }
+    }
+
+    fetchGroups();
+  }, []);
+
 
   return (
     <div className="p-6 bg-gray-200">
