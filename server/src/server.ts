@@ -45,13 +45,13 @@ app.post('/googleLogin', async (req: Request, res: Response) => {
 // post method for recieving group name and code
 app.post('/createGroup', async (req: Request, res: Response) => {
     try {
-        const { groupName, groupCode } = req.body as {groupName: string, groupCode : string}
+        const { personName, groupCode } = req.body as {personName: string, groupCode : string}
 
-        console.log("Received groupname: ", groupName )
+        console.log("Received groupname: ", personName )
         console.log("Recived groupCode: ", groupCode)
 
         await db.collection("groups").add({ 
-            name: groupName,
+            name: personName,
             members:[],
             code:groupCode
         });
@@ -61,7 +61,7 @@ app.post('/createGroup', async (req: Request, res: Response) => {
     }
 })
 
-app.get("/getFirestoreObject", async (req, res) => {
+app.get("/getFirestoreObject", async (req: Request, res: Response) => {
     try {
       const docRef = db.collection("groups"); // Reference to the collection
       const docSnap = await docRef.get(); // Get all documents in the collection
@@ -81,6 +81,37 @@ app.get("/getFirestoreObject", async (req, res) => {
       res.status(500).json({ error: "Error fetching documents", details: error });
     }
   });
+
+  app.post("/joinGroup", async (req: Request, res: Response) => {
+    const { groupCode, personName } = req.body as { personName?: string; groupCode?: string };
+  
+    if (!personName || !groupCode) {
+      return res.status(400).json({ message: "Missing personName or groupCode" });
+    }
+  
+    const groupsRef = db.collection("groups");
+    const groupQuery = await groupsRef.where("code", "==", groupCode).limit(1).get();
+  
+
+    if (groupQuery.empty) {
+      return res.status(404).json({ message: "Code is wrong" });
+    }
+  
+    const groupDoc = groupQuery.docs[0];
+    const groupData = groupDoc.data();
+    const members: string[] = Array.isArray(groupData.members) ? groupData.members : [];
+
+    if (members.includes(personName)) {
+      return res.status(400).json({ message: "Person is already in the group" });
+    }
+
+    await groupDoc.ref.update({
+      members: admin.firestore.FieldValue.arrayUnion(personName),
+    });
+  
+    return res.status(200).json({ message: "Joined the group successfully!" });
+  });
+  
 
 
 app.listen(PORT, () => {
