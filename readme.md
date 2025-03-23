@@ -13,7 +13,7 @@ Made with TypeScript/JavaScript
 
 ## Getting Started
 
-First, run the fronted server:
+First, run the frontend server:
 
 ```bash
 npm run dev
