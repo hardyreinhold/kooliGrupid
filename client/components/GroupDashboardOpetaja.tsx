@@ -5,10 +5,24 @@ import { Card, CardBody } from "reactstrap";
 import { m, motion } from "framer-motion";
 import GroupCreate from "./GroupCreate";
 
+interface Group {
+  id: string;
+  name: string;
+  members: string[];
+  courses?: string[];
+}
+
+interface Course {
+  id: string;
+  name: string;
+}
+
 
 export default function GroupDashboard() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const[availableCourses, setAvailableCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState("");
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
 
@@ -27,6 +41,39 @@ export default function GroupDashboard() {
   
       fetchGroups();
     }, []);
+
+    useEffect(() => {
+      async function fetchCourses() {
+        try {
+          const res = await fetch("http://localhost:4000/getCourses");
+          const data = await res.json();
+          setAvailableCourses(data);
+        } catch (err) {
+          console.error("Failed to fetch courses", err);
+        }
+      }
+    
+      fetchCourses();
+    }, []);
+
+    const assignCourse = async () => {
+      if (!selectedCourse || !selectedGroup?.id) return;
+    
+      const res = await fetch("http://localhost:4000/addCourseToGroup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          groupId: selectedGroup.id,
+          courseId: selectedCourse,
+        }),
+      });
+    
+      const data = await res.json();
+      console.log(data);
+    
+      // Refresh group data manually or refetch
+      setTimeout(() => window.location.reload(), 1500);
+    };
 
   const removePerson = (member:String, groupId: string) => {
       if(member) {
@@ -90,6 +137,37 @@ export default function GroupDashboard() {
                 </li>
             ))}
           </ul>
+
+          <div className="mt-6">
+            <h3 className="font-semibold">Courses</h3>
+            <ul className="list-disc pl-6 mt-2">
+              {(selectedGroup.courses || []).map((course, idx) => (
+                <li key={idx}>{course}</li>
+              ))}
+            </ul>
+
+            <div className="mt-3 flex gap-2 items-center">
+              <select
+                className="p-2 border rounded"
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
+              >
+                <option value="">Select a course</option>
+                {availableCourses.map((course) => (
+                  <option key={course.id} value={course.name}>
+                    {course.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="bg-blue-600 text-white px-3 py-1 rounded"
+                onClick={assignCourse}
+              >
+                Add Course
+              </button>
+            </div>
+          </div>
+
           <button className="mt-4" onClick={() => setSelectedGroup(null)}>
             Close
           </button>

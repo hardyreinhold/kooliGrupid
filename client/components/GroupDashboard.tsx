@@ -93,6 +93,17 @@ export default function GroupDashboard() {
               <li key={index}>{member}</li>
             ))}
           </ul>
+          
+          <div className="mt-6">
+            <h3 className="font-semibold">Courses</h3>
+            <ul className="list-disc pl-6 mt-2">
+              {(selectedGroup.courses || []).map((course, idx) => (
+                <li key={idx}>{course}</li>
+              ))}
+            </ul>
+            </div>
+              
+
           <button className="mt-4" onClick={() => setSelectedGroup(null)}>
             Close
           </button>
