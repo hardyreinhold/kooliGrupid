@@ -36,7 +36,12 @@ export default function GroupDashboard() {
           console.log("Backend response:", data);
           if (data.message == "Code is wrong")
             setErrorMessage("Recived code is wrong");
-          else setSuccessMessage(data.message);
+          else {
+            setSuccessMessage(data.message)
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          };
         });
     } else {
       setErrorMessage("Input group code and name");

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardBody } from "reactstrap";
-import { motion } from "framer-motion";
+import { m, motion } from "framer-motion";
 import GroupCreate from "./GroupCreate";
 
 
@@ -28,7 +28,30 @@ export default function GroupDashboard() {
       fetchGroups();
     }, []);
 
-  const removePerson = () => {console.log("Person removed")}
+  const removePerson = (member:String, groupId: string) => {
+      if(member) {
+        fetch("http://localhost:4000/removePerson", {  // connects to backend
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({member, groupId
+      
+          }),
+      })
+      .then((response) => response.json())
+        .then((data) => {
+          console.log("Person removed")
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);})
+        
+     } else {
+      console.log("Failed to find member.")
+     } 
+  }
+
+  
 
   return (
     <div className="p-6 bg-gray-200">
@@ -60,7 +83,7 @@ export default function GroupDashboard() {
                 {member}
                 <button
                   className="ml-4 bg-red-500 m-1 text-white p-1 rounded"
-                  onClick={() => removePerson(member)}
+                  onClick={() => removePerson(member, selectedGroup.id)}
                 >
                   Remove
                 </button>
