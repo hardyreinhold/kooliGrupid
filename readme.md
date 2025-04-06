@@ -1,4 +1,4 @@
-# kooliGrupid.
+# kooliGrupid
 
 App designed for students to join groups and teachers to manage them.
 
